@@ -43,7 +43,7 @@ public class MyApplication extends Application {
      * @param number 要计算的数
      * @param count  要计算数的幂
      */
-    private static long getResult(long number, long count) {
+    public static long getResult(long number, long count) {
         if (count > 0) {
             return number * getResult(number, count - 1);
         }

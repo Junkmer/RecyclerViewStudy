@@ -57,4 +57,7 @@
         </menu>
     </item>
 
+    <item android:id="@+id/more_type"
+        android:title="多种条目类型"/>
+
 </menu>

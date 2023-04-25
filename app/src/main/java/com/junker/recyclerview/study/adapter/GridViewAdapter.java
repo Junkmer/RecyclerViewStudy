@@ -1,19 +1,8 @@
 package com.junker.recyclerview.study.adapter;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
 import com.junker.recyclerview.study.R;
-import com.junker.recyclerview.study.adapter.RecyclerViewBaseAdapter.BaseHolder;
 import com.junker.recyclerview.study.beans.ItemBean;
 
 import java.util.List;

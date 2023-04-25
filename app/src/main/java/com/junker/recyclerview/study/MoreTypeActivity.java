@@ -39,6 +39,7 @@ public class MoreTypeActivity extends AppCompatActivity {
     }
 
     private void initEvent() {
+        mRefreshLayout.setEnabled(true);
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -52,8 +53,8 @@ public class MoreTypeActivity extends AppCompatActivity {
                         typeBean.setType(random.nextInt(3));
 
                         typeBean.setTitle("我是新增的数据Title");
-                        typeBean.setUrl(String.format(MyApplication.GROUP_FACE_URL, (random.nextInt() + 1) + ""));
-                        mTypeAdapter.addData(typeBean);
+                        typeBean.setUrl(String.format(MyApplication.GROUP_FACE_URL, (random.nextInt(50) + 1) + ""));
+                        mTypeAdapter.getmDatas().add(0,typeBean);
 
                         mRefreshLayout.setRefreshing(false);
                         mTypeAdapter.notifyDataSetChanged();

@@ -7,11 +7,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,11 +24,16 @@ import com.junker.recyclerview.study.adapter.GridViewAdapter;
 import com.junker.recyclerview.study.adapter.ListViewAdapter;
 import com.junker.recyclerview.study.adapter.RecyclerViewBaseAdapter;
 import com.junker.recyclerview.study.adapter.StaggerViewAdapter;
+import com.junker.recyclerview.study.beans.ItemBean;
+import com.junker.recyclerview.study.beans.MoreTypeBean;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private RecyclerView recyclerView;
+    private JunkerRecyclerview recyclerView;
     private LinearLayoutManager linearLayoutManager;
     private GridLayoutManager gridLayoutManager;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
@@ -38,6 +45,74 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initView();
+
+        initEvent();
+    }
+
+    private void initEvent() {
+        recyclerView.setScrollRefreshListener(new JunkerRecyclerview.ScrollRefreshListener() {
+            @Override
+            public void downPullToRefresh() {
+                Log.e(TAG, "触发下拉刷新回调");
+                if (mAdapter.getDownRefreshState() == RecyclerViewBaseAdapter.TYPE_REFRESH_VISIBLE_STATE){
+                    Log.e(TAG, "当前已处于下拉刷新状态，无需重复处理");
+                    return;
+                }
+                mAdapter.updateDownRefreshStatue(RecyclerViewBaseAdapter.TYPE_REFRESH_VISIBLE_STATE);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Random ranNum = new Random();
+                        int num = ranNum.nextInt(2) ;
+                        if (num == 1) {
+                            ArrayList<ItemBean> itemBeans = new ArrayList<>();
+                            for (int i = 0; i < MyApplication.GROUP_FACE_COUNT; i++) {
+                                ItemBean imageBean = new ItemBean();
+                                imageBean.setTitle(String.format("我是第%s条新数据Title", i + 1));
+                                Random random = new Random();
+                                int randomValue = random.nextInt(30);
+                                imageBean.setUrl(String.format(MyApplication.GROUP_FACE_URL, randomValue));
+                                itemBeans.add(imageBean);
+                            }
+                            mAdapter.setData(itemBeans);
+                        }else {
+                            Log.e(TAG, "刷新失败");
+                            Toast.makeText(MainActivity.this,"刷新失败",Toast.LENGTH_SHORT).show();
+                            mAdapter.updateDownRefreshStatue(RecyclerViewBaseAdapter.TYPE_REFRESH_GONE_STATE);
+                        }
+                    }
+                }, 2000);
+            }
+
+            @Override
+            public void upPullToLoadMore() {
+                Log.e(TAG, "触发上拉加载更多回调");
+                if (mAdapter.getUpLoadState() == RecyclerViewBaseAdapter.TYPE_LOADING_STATE){
+                    Log.e(TAG, "当前已处于上拉加载更多状态，无需重复处理");
+                    return;
+                }
+                mAdapter.updateUpLoadStatue(RecyclerViewBaseAdapter.TYPE_LOADING_STATE);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Random ranNum = new Random();
+                        int num = ranNum.nextInt(3) -1;
+                        if (num == RecyclerViewBaseAdapter.TYPE_LOADING_STATE) {
+                            ItemBean imageBean = new ItemBean();
+                            imageBean.setTitle("我是新增的数据Title");
+
+                            Random random = new Random();
+                            imageBean.setUrl(String.format(MyApplication.GROUP_FACE_URL, (random.nextInt(19) + 1) + ""));
+
+                            mAdapter.addData(imageBean);
+                        }else {
+                            mAdapter.updateUpLoadStatue(num);
+                        }
+                    }
+                }, 2000);
+            }
+        });
     }
 
     private void initView() {
@@ -109,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             //多条目类型被点击
             case R.id.more_type:
-                Intent intent = new Intent(MainActivity.this,MoreTypeActivity.class);
+                Intent intent = new Intent(MainActivity.this, MoreTypeActivity.class);
                 startActivity(intent);
         }
         initRecyclerviewItemOnClick();
@@ -133,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     private void initStaggerViewAdapter(int orientation, boolean isReverseLayout) {
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, orientation);
         staggeredGridLayoutManager.setReverseLayout(isReverseLayout);
-        mAdapter = new StaggerViewAdapter( MyApplication.itemBeans);
+        mAdapter = new StaggerViewAdapter(MyApplication.itemBeans);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(mAdapter);
     }

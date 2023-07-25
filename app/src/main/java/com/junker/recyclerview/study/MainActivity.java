@@ -24,6 +24,7 @@ import com.junker.recyclerview.study.adapter.GridViewAdapter;
 import com.junker.recyclerview.study.adapter.ListViewAdapter;
 import com.junker.recyclerview.study.adapter.RecyclerViewBaseAdapter;
 import com.junker.recyclerview.study.adapter.StaggerViewAdapter;
+import com.junker.recyclerview.study.animation.CustomItemAnimation;
 import com.junker.recyclerview.study.beans.ItemBean;
 import com.junker.recyclerview.study.beans.MoreTypeBean;
 
@@ -117,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         recyclerView = findViewById(R.id.recycler_view);
+        CustomItemAnimation animator = new CustomItemAnimation();
+        animator.setChangeDuration(100);
+        animator.setAddDuration(200);
+        animator.setMoveDuration(200);
+        animator.setRemoveDuration(200);
+        recyclerView.setItemAnimator(animator);
         initListViewAdapter(RecyclerView.VERTICAL, false);
     }
 

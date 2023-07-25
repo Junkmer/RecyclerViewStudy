@@ -4,12 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.ViewPropertyAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -212,13 +219,23 @@ public class CustomItemAnimation extends SimpleItemAnimator {
                 }).start();
     }
 
+    private boolean isScrollVerticallyBottom(RecyclerView recyclerView) {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        assert layoutManager != null;
+        int firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
+        int lastPosition = layoutManager.findLastCompletelyVisibleItemPosition();
+        assert recyclerView.getAdapter() != null;
+        boolean isFullScreen = (lastPosition - firstPosition + 1) < recyclerView.getAdapter().getItemCount();//Item数据是否满屏
+        boolean isCanTopScr = recyclerView.canScrollVertically(1);//是否可以向上滑动
+        return !isCanTopScr && isFullScreen;
+    }
+
     @Override
     public boolean animateAdd(final RecyclerView.ViewHolder holder) {
         final View view = holder.itemView;
         ViewParent parent = view.getParent();
         if (parent instanceof RecyclerView) {
-            RecyclerView recyclerView = (RecyclerView) parent;
-            if (!recyclerView.canScrollVertically(1)) {//表示是否能向上滚动，false表示已经滚动到底部
+            if (isScrollVerticallyBottom((RecyclerView) parent)) {//表示是否能向上滚动，false表示已经滚动到底部
                 currentAddTopTranslationY(holder);
                 return true;
             }
@@ -245,8 +262,7 @@ public class CustomItemAnimation extends SimpleItemAnimator {
         final View view = holder.itemView;
         ViewParent parent = view.getParent();
         if (parent instanceof RecyclerView) {
-            RecyclerView recyclerView = (RecyclerView) parent;
-            if (!recyclerView.canScrollVertically(1)) {//表示是否能向上滚动，false表示已经滚动到底部
+            if (isScrollVerticallyBottom((RecyclerView) parent)) {//表示是否能向上滚动，false表示已经滚动到底部
                 currentAddTopTranslationYImpl(holder);
                 return;
             }
